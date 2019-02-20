@@ -13,6 +13,18 @@ def createDatabase():
     finally:
         connection.close()
 
+
+def clear():
+    connection = sql.connect(host='localhost', user='lms', password="openlibrary")
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("drop database LibMS;")
+        connection.commit()
+    finally:
+        connection.close()
+
+
 @LibMS
 def createTables(cursor):
     cursor.execute("""CREATE TABLE User(

@@ -148,15 +148,3 @@ def query11(cursor):
     print(out)
 
     print("==============================================================================")
-
-
-if __name__ == "__main__":
-    # query1()
-    query2()
-    # query3()
-    # query4(book="Elementary, my dear Watson.")
-    # query5(user="Otha Solis")
-    query7(date1="2017-06-06", date2="2018-01-01")
-    # query9(date1="2018-01-01", date2="2018-06-01")
-    # query10()
-    # query11()

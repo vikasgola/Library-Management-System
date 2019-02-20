@@ -69,34 +69,58 @@ def createData(num=100):
     
     # books
     for i in range(num*2):
-        books.append({
-            "pages": Numbers().between(minimum=100, maximum=1000),
-            "title": Text().title(),
-            "year": Datetime().year(minimum=2013, maximum=2018),
-            "isbn" : Code().isbn(),
-            "adddate": Datetime().date(),
-            "issuetime": Datetime().datetime(),
-            "publisher_id": Numbers().between(minimum=1, maximum=num//2),
-            "user_id": Numbers().between(minimum=1, maximum=num)
-        })
+        if random.random() < 0.4:
+            books.append({
+                "pages": Numbers().between(minimum=100, maximum=1000),
+                "title": Text().quote(),
+                "year": Datetime().year(minimum=2013, maximum=2018),
+                "isbn" : Code().isbn(),
+                "adddate": Datetime().date(),
+                # "issuetime": Datetime().datetime(),
+                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                # "user_id": Numbers().between(minimum=1, maximum=num)
+            })
+        else:
+            books.append({
+                "pages": Numbers().between(minimum=100, maximum=1000),
+                "title": Text().quote(),
+                "year": Datetime().year(minimum=2013, maximum=2018),
+                "isbn" : Code().isbn(),
+                "adddate": Datetime().date(),
+                "issuetime": Datetime().datetime(),
+                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                "user_id": Numbers().between(minimum=1, maximum=num)
+            })
 
     # Periodical
     for i in range(num*int(1.5)):
-        periodicals.append({
-            "title": Text().title(),
-            "year": Datetime().year(minimum=2013, maximum=2018),
-            "isbn" : Code().isbn(),
-            "adddate": Datetime().date(),
-            "issuetime": Datetime().datetime(),
-            "publisher_id": Numbers().between(minimum=1, maximum=num//2),
-            "user_id": Numbers().between(minimum=1, maximum=num),
-            "volume": Numbers().between(minimum=1, maximum=10)
-        })
+        if random.random() < 0.4:
+            periodicals.append({
+                "title": Text().quote(),
+                "year": Datetime().year(minimum=2013, maximum=2018),
+                "isbn" : Code().isbn(),
+                "adddate": Datetime().date(),
+                # "issuetime": Datetime().datetime(),
+                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                # "user_id": Numbers().between(minimum=1, maximum=num),
+                "volume": Numbers().between(minimum=1, maximum=10)
+            })
+        else:
+            periodicals.append({
+                "title": Text().quote(),
+                "year": Datetime().year(minimum=2013, maximum=2018),
+                "isbn" : Code().isbn(),
+                "adddate": Datetime().date(),
+                "issuetime": Datetime().datetime(),
+                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                "user_id": Numbers().between(minimum=1, maximum=num),
+                "volume": Numbers().between(minimum=1, maximum=10)
+            })
 
     # papers
     for i in range(num*int(1.5)//2):
         papers.append({
-            "name": Text().title(),
+            "name": Text().quote(),
             "periodical_id": Numbers().between(minimum=1, maximum=num*int(1.5))
         })
 

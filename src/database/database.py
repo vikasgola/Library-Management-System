@@ -30,9 +30,9 @@ def createTables(cursor):
                         year YEAR(4) NOT NULL,
                         isbn VARCHAR(100) NOT NULL,
                         adddate DATE NOT NULL,
-                        issuetime DATETIME NOT NULL,
+                        issuetime DATETIME,
                         publisher_id INT NOT NULL,
-                        user_id INT NOT NULL,
+                        user_id INT,
                         PRIMARY KEY ( book_id ) );""")
 
     cursor.execute("""CREATE TABLE Message(
@@ -49,8 +49,8 @@ def createTables(cursor):
                         isbn VARCHAR(100) NOT NULL,
                         volume INT NOT NULL,
                         adddate DATE NOT NULL,
-                        issuetime DATETIME NOT NULL,
-                        user_id INT NOT NULL,
+                        issuetime DATETIME,
+                        user_id INT,
                         publisher_id INT NOT NULL, 
                         PRIMARY KEY ( periodical_id ) );""")
 

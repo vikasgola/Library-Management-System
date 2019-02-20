@@ -165,5 +165,18 @@ def addDisciplineToBook(cursor):
                         discipline VARCHAR(50) NOT NULL,
                         PRIMARY KEY ( book_id, discipline ) );""")
 
-    cursor.execute("""ALTER TABLE Book
+    cursor.execute("""ALTER TABLE Discipline
                         ADD FOREIGN KEY (book_id) REFERENCES Book(book_id);""")
+
+
+
+@LibMS
+def addHistory(cursor):
+    cursor.execute("""CREATE TABLE History(
+                        issuedate DATE NOT NULL,
+                        returndate DATE NOT NULL,
+                        book_id INT NOT NULL,
+                        user_id INT NOT NULL,
+                        FOREIGN KEY (book_id) REFERENCES Book(book_id),
+                        FOREIGN KEY (user_id) REFERENCES User(user_id),
+                        PRIMARY KEY ( issuedate, returndate, book_id ) );""")

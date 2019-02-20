@@ -2,7 +2,8 @@ import sys
 sys.path.append('../')
 from helper.helper import LibMS
 
-import random
+
+import random,copy, datetime
 from mimesis import Person, Business, Text, Numbers, Datetime, Code
 import mimesis as dgen
 
@@ -21,6 +22,7 @@ bookauthor =[]
 authorpaper = []
 booktag =[]
 periodicaltag = []
+history = []
 
 @LibMS
 def addtoDataBase(cursor, tablename, data):
@@ -32,25 +34,25 @@ def addtoDataBase(cursor, tablename, data):
 
 def createData(num=100):
     # authors
-    for i in range(num//2):
+    for i in range(random.randint(num//4, num*4)):
         authors.append({
             "name": Person().full_name()
         })
 
     # publisher
-    for i in range(num//2):
+    for i in range(random.randint(num//4, num*4)):
         publisher.append({
             "name": Business().company()
         })
     
     # tag
-    for i in range(num//2):
+    for i in range(random.randint(num//4, num*4)):
         tags.append({
             "value": Text().word()
         })
     
     # users
-    for i in range(num):
+    for i in range(random.randint(num//4, num*4)):
         users.append({
             "name": Person().full_name(),
             "password": Person().password(),
@@ -60,7 +62,7 @@ def createData(num=100):
         })
 
     # messages
-    for i in range(num*2):
+    for i in range(random.randint(num//2, num*8)):
         messages.append({
             "text": Text().sentence(),
             "user_id": Numbers().between(minimum=1, maximum=num),
@@ -68,7 +70,7 @@ def createData(num=100):
         })
     
     # books
-    for i in range(num*2):
+    for i in range(random.randint(num//4, num*4)):
         if random.random() < 0.4:
             books.append({
                 "pages": Numbers().between(minimum=100, maximum=1000),
@@ -93,7 +95,7 @@ def createData(num=100):
             })
 
     # Periodical
-    for i in range(num*int(1.5)):
+    for i in range(random.randint(num//4, num*4)):
         if random.random() < 0.4:
             periodicals.append({
                 "title": Text().quote(),
@@ -118,7 +120,7 @@ def createData(num=100):
             })
 
     # papers
-    for i in range(num*int(1.5)//2):
+    for i in range(random.randint(num//4, num*2)):
         papers.append({
             "name": Text().quote(),
             "periodical_id": Numbers().between(minimum=1, maximum=num*int(1.5))
@@ -153,6 +155,18 @@ def createData(num=100):
             "tag_id": Numbers().between(minimum=1, maximum=len(tags))
         })
 
+
+    # history tag
+    for i in range(random.randint(num, num*10)):
+        issd = Datetime().date()
+        retd = copy.copy(issd) + datetime.timedelta(days= Numbers().between(minimum=2, maximum=60))
+        history.append({
+            "issuedate": issd,
+            "returndate": retd,
+            "book_id": Numbers().between(minimum=1, maximum = len(books)),
+            "user_id": Numbers().between(minimum=1, maximum = len(users)),
+        })
+
     # capacity
     # for i in range(num*int(1.5)):
     #     capacity.append({
@@ -165,8 +179,9 @@ def createData(num=100):
     #         "user_id": Numbers.between(minimum=1, maximum=num)
     #     })
 
-if __name__ == "__main__":
-    createData()
+
+
+def addAllData():
     addtoDataBase(tablename="User", data=users)
     addtoDataBase(tablename="Publisher", data=publisher)
     addtoDataBase(tablename="Author", data=authors)
@@ -180,3 +195,11 @@ if __name__ == "__main__":
     addtoDataBase(tablename="BookTag", data=booktag)
     addtoDataBase(tablename="AuthorPaper", data=authorpaper)
     addtoDataBase(tablename="PeriodicalTag", data=periodicaltag)
+
+    addtoDataBase(tablename="History", data=history)
+
+
+
+def addRandomDataToDB():
+    createData()
+    addAllData()

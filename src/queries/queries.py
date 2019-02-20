@@ -50,6 +50,9 @@ def query2(cursor):
     cursor.execute("SELECT COUNT(*) FROM Message;")
     print("Number of Messages: ", cursor.fetchone()[0])
 
+    cursor.execute("SELECT COUNT(*) FROM History;")
+    print("Number of History: ", cursor.fetchone()[0])
+
     print("==============================================================================")
 
 
@@ -82,9 +85,7 @@ def query4(cursor, book):
 def query5(cursor, user):
     print("==============================================================================")
 
-    cursor.execute("""
-                SELECT COUNT(*) FROM Book WHERE Book.user_id = (SELECT User.user_id FROM User WHERE User.name='{}' LIMIT 1) LIMIT 1""".format(user))
-
+    cursor.execute("""SELECT COUNT(*) FROM Book WHERE Book.user_id = (SELECT User.user_id FROM User WHERE User.name='{}' LIMIT 1) LIMIT 1""".format(user))
     print("Total Number of Books Issued for "+user+ " is" , cursor.fetchall()[0][0])
 
     print("==============================================================================")
@@ -97,8 +98,17 @@ def query6(cursor):
 
 # List the number of issued and returned books on daily basis (for a given day/period).
 @LibMS
-def query7(cursor):
-    pass
+def query7(cursor, date1, date2):
+    print("==============================================================================")
+
+    cursor.execute("SELECT COUNT(*) FROM History WHERE History.issuedate > '{}' AND History.issuedate < '{}';".format(date1, date2))
+    print("Number of issued booked on "+date1+" to "+ date2+": ", cursor.fetchall()[0][0])
+
+    cursor.execute("SELECT COUNT(*) FROM History WHERE History.returndate > '{}' AND History.returndate < '{}';".format(date1, date2))
+    print("Number of returned booked on "+date1+" to "+ date2+": ", cursor.fetchall()[0][0])
+
+    print("==============================================================================")
+
 
 
 # List the users with book details if there are any dues.
@@ -141,11 +151,12 @@ def query11(cursor):
 
 
 if __name__ == "__main__":
-    query1()
+    # query1()
     query2()
-    query3()
-    query4(book="Elementary, my dear Watson.")
-    query5(user="Otha Solis")
-    query9(date1="2018-01-01", date2="2018-06-01")
-    query10()
-    query11()
+    # query3()
+    # query4(book="Elementary, my dear Watson.")
+    # query5(user="Otha Solis")
+    query7(date1="2017-06-06", date2="2018-01-01")
+    # query9(date1="2018-01-01", date2="2018-06-01")
+    # query10()
+    # query11()

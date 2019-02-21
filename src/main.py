@@ -4,11 +4,11 @@ import queries.queries as qur
 import pymysql, os
 
 def runQueries():
-    qur.query1()
+    # qur.query1()
     qur.query2()
     qur.query3()
     qur.query4(book="Let them eat cake.")
-    qur.query5(user="Otha Solis")
+    qur.query5(user="Shad Becker")
     qur.query7(date1="2017-06-06", date2="2018-01-01")
     qur.query9(date1="2018-01-01", date2="2018-06-01")
     qur.query10()

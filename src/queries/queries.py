@@ -110,7 +110,6 @@ def query7(cursor, date1, date2):
     print("==============================================================================")
 
 
-
 # List the users with book details if there are any dues.
 @LibMS
 def query8(cursor):

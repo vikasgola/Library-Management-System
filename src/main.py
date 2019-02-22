@@ -24,11 +24,11 @@ def buildLibMS():
     dg.addRandomDataToDB(200)
 
 if __name__ == "__main__":
+    mydb.clear()
     try:
         runQueries()
     except:
         os.system("clear")
-        mydb.clear()
         buildLibMS()
         runQueries()
         

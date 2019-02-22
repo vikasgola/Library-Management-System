@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 import sys
 sys.path.append('../')
 from helper.helper import *
-
+from functools import partial
 
 class App(QMainWindow):
     def __init__(self):
@@ -117,6 +117,29 @@ class TopbarWidget(QWidget):
             self.dialog.buttonClicked.connect(self.closeDialog)
             self.dialog.show()
 
+
+class FormDialog(QDialog):
+    def __init__(self, parent, inputnamelist):
+        super(QDialog, self).__init__(parent)
+        self.layout = QFormLayout(self)
+        self.labels = []
+        self.inputs = []
+        for i in range(len(inputnamelist)):
+            tlabel = QLabel(inputnamelist[i])
+            tinput = QLineEdit(parent)
+            self.labels.append(tlabel)
+            self.inputs.append(tinput)
+            self.layout.addRow(tlabel, tinput)
+
+        self.submit = QPushButton("Submit")
+        self.cancel = QPushButton("Cancel")
+        self.cancel.clicked.connect(lambda: self.close())
+        self.labels.append(self.submit)
+        self.inputs.append(self.cancel)
+        self.layout.addRow(self.submit, self.cancel)
+
+        self.setLayout(self.layout)
+
 class BottombarWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -163,7 +186,66 @@ class BottombarWidget(QWidget):
         searchedWindow.show()
 
     def handleAddButton(self):
-        print("add")
+        self.buttonbox = QDialog(self)
+        self.buttonbox.setFixedWidth(120)
+        self.layout = QVBoxLayout(self.buttonbox)
+
+        userbtn = QPushButton(self.buttonbox)
+        userbtn.setText("Add User")
+        inputfield = ["Name", "username", "password", "email", "usertype"]
+        self.userform = FormDialog(self.buttonbox, inputfield)
+        self.userform.setWindowTitle("Add new User")
+        userbtn.clicked.connect(lambda: (self.userform.show(), self.buttonbox.close()))
+        self.layout.addWidget(userbtn)
+
+        bookbtn = QPushButton(self.buttonbox)
+        bookbtn.setText("Add Book")
+        inputfield = ["Title", "Pages", "Year", "isbn", "addDate", "Publisher Name"]
+        self.bookform = FormDialog(self.buttonbox, inputfield)
+        self.bookform.setWindowTitle("Add new Book")
+        bookbtn.clicked.connect(lambda: (self.bookform.show(), self.buttonbox.close()))
+        self.layout.addWidget(bookbtn)
+
+        authorbtn = QPushButton(self.buttonbox)
+        authorbtn.setText("Add Author")
+        inputfield = ["Name"]
+        self.authorform = FormDialog(self.buttonbox, inputfield)
+        self.authorform.setWindowTitle("Add new Author")
+        authorbtn.clicked.connect(lambda: (self.authorform.show(), self.buttonbox.close()))
+        self.layout.addWidget(authorbtn)
+
+        paperbtn = QPushButton(self.buttonbox)
+        paperbtn.setText("Add Paper")
+        inputfield = []
+        self.paperform = FormDialog(self.buttonbox, inputfield)
+        self.paperform.setWindowTitle("Add new Paper")
+        paperbtn.clicked.connect(lambda: (self.paperform.show(), self.buttonbox.close()))
+        self.layout.addWidget(paperbtn)
+
+        messagebtn = QPushButton(self.buttonbox)
+        messagebtn.setText("Add Message")
+        inputfield = ["text", "timestamp", "user_id"]
+        self.messageform = FormDialog(self.buttonbox, inputfield)
+        self.messageform.setWindowTitle("Add new Message")
+        messagebtn.clicked.connect(lambda: (self.messageform.show(), self.buttonbox.close()))
+        self.layout.addWidget(messagebtn)
+
+        publisherbtn = QPushButton(self.buttonbox)
+        publisherbtn.setText("Add Pulisher")
+        inputfield = ["Name"]
+        self.publisherform = FormDialog(self.buttonbox, inputfield)
+        self.publisherform.setWindowTitle("Add new Publisher")
+        publisherbtn.clicked.connect(lambda: (self.publisherform.show(), self.buttonbox.close()))
+        self.layout.addWidget(publisherbtn)
+
+        cancelbtn = QPushButton(self.buttonbox)
+        cancelbtn.setText("Cancel")
+        cancelbtn.clicked.connect(lambda: self.buttonbox.close())
+        self.layout.addWidget(cancelbtn)
+
+        self.buttonbox.setLayout(self.layout)
+        self.buttonbox.show()
+
 
     @LibMS
     def deleteRow(self, cursor, query):
@@ -185,7 +267,7 @@ class BottombarWidget(QWidget):
         self.dialog = QMessageBox(self)
         self.dialog.setIcon(QMessageBox.Warning)
         if len(selectedRows) != 0:
-            self.dialog.setText("These Rows will be deleted "+','.join([str(f) for f in selectedRows])+ " from table '"+self.papa.tabnames[index]+"'"+" \nAre You Sure?")
+            self.dialog.setText("These Rows will be deleted "+','.join([str(f+1) for f in selectedRows])+ " from table '"+self.papa.tabnames[index]+"'"+" \nAre You Sure?")
             self.dialog.setStandardButtons( QMessageBox.Yes | QMessageBox.No)
         else:
             self.dialog.setText("No Row was selected. Please select rows.")
@@ -314,8 +396,6 @@ class TableWidget(QtWidgets.QTableWidget):
     @pyqtSlot()
     def on_click(self):
         pass
-        # for currentQTableWidgetItem in self.selectedItems():
-        #     print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

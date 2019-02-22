@@ -21,7 +21,7 @@ def buildLibMS():
     mydb.addUserType()
     mydb.addDisciplineToBook()
     mydb.addHistory()
-    dg.addRandomDataToDB()
+    dg.addRandomDataToDB(200)
 
 if __name__ == "__main__":
     try:
@@ -29,6 +29,6 @@ if __name__ == "__main__":
     except:
         os.system("clear")
         mydb.clear()
-        buildLibMS()    
+        buildLibMS()
         runQueries()
         

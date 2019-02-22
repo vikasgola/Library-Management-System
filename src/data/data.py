@@ -32,7 +32,7 @@ def addtoDataBase(cursor, tablename, data):
         q = "INSERT INTO %s ( %s ) VALUES ( %s )" % (tablename, columns, placeholders)
         cursor.execute(q, list(d.values()))
 
-def createData(num=100):
+def createData(num):
     # authors
     for i in range(random.randint(num//4, num*4)):
         authors.append({
@@ -200,6 +200,6 @@ def addAllData():
 
 
 
-def addRandomDataToDB():
-    createData()
+def addRandomDataToDB(num=100):
+    createData(num)
     addAllData()

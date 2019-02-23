@@ -161,13 +161,10 @@ class BottombarWidget(QWidget):
             self.dialog2.setText("Most Probably. Foreign Key Constraint have Failed!. Try Again!")
             self.dialog2.setWindowTitle("Wrong Query!")
             self.dialog2.setStandardButtons(QMessageBox.Close)
-            self.dialog2.buttonClicked.connect(self.closeDialog)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
             self.dialog2.show()
         self.papa.tabWidget.refresh()
 
-    def closeDialog(self):
-        self.dialog2.close()
-       
 class SearchedWindow(QMainWindow):
     def __init__(self, parent, searchtext):
         super(SearchedWindow, self).__init__(parent)

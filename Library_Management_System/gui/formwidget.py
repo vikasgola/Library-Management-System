@@ -57,16 +57,13 @@ class FormDialog(QDialog):
 
         self.submitbtn = QPushButton("Submit")
         self.cancelbtn = QPushButton("Cancel")
-        self.cancelbtn.clicked.connect(self.handleCancelButton)
+        self.cancelbtn.clicked.connect(self.close)
         self.submitbtn.clicked.connect(lambda: self.addDatatoDatabase())
         self.labels.append(self.submitbtn)
         self.inputs.append(self.cancelbtn)
         self.layout.addRow(self.submitbtn, self.cancelbtn)
 
         self.setLayout(self.layout)
-
-    def handleCancelButton(self):
-        self.close()
 
     @LibMS
     def addDatatoDatabase(self, cursor):
@@ -110,13 +107,10 @@ class FormDialog(QDialog):
             self.dialog2.setText("Can't Add. Incorrect Input. Try Again!")
             self.dialog2.setWindowTitle("Error!")
             self.dialog2.setStandardButtons(QMessageBox.Close)
-            self.dialog2.buttonClicked.connect(self.closeDialog)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
             self.dialog2.show()
         self.papa.papa.tabWidget.refresh()
         self.close()
-
-    def closeDialog(self):
-        self.dialog2.close()
 
     @LibMS
     def runQuery(self, cursor, quer):

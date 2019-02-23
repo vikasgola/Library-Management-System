@@ -1,10 +1,5 @@
-# import pymysql as sql
 import pandas as pd
-import sys
-sys.path.append('../')
-from helper.helper import LibMS
-
-dbname = "LibMS"
+from Library_Management_System.helper.helper import *
 
 # List all the tables and their attributes.
 @LibMS

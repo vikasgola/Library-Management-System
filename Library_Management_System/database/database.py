@@ -1,10 +1,8 @@
 import pymysql as sql
-import sys
-sys.path.append('../')
-from helper.helper import LibMS
+from Library_Management_System.helper.helper import *
 
 def createDatabase():
-    connection = sql.connect(host='localhost', user='lms', password="openlibrary")
+    connection = sql.connect(host='localhost', user=username, password=password)
     
     try:
         with connection.cursor() as cursor:
@@ -15,8 +13,7 @@ def createDatabase():
 
 
 def clear():
-    connection = sql.connect(host='localhost', user='lms', password="openlibrary")
-    
+    connection = sql.connect(host='localhost', user=username, password=password)
     try:
         with connection.cursor() as cursor:
             cursor.execute("drop database LibMS;")

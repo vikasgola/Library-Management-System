@@ -1,0 +1,4 @@
+pyqt5==5.9.2
+pandas==0.24.1
+pymysql==0.9.3
+mimesis==3.0.0

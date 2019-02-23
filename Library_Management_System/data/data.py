@@ -1,13 +1,8 @@
-import sys
-sys.path.append('../')
-from helper.helper import LibMS
-
-
+from Library_Management_System.helper.helper import *
 import random,copy, datetime
 from mimesis import Person, Business, Text, Numbers, Datetime, Code
 import mimesis as dgen
 
-dbname = "LibMS"
 ut = ["Students","Students","Students","Students","Students","Students", "Faculty","Faculty", "Faculty", "Staff", "Staff", "Guest","Guest","Guest"]
 authors = []
 publisher = []

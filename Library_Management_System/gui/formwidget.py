@@ -9,7 +9,7 @@ import pymysql as sql
 
 
 class FormDialog(QDialog):
-    def __init__(self, parent, inputnamelist, tablename=None):
+    def __init__(self, parent, inputnamelist, tablename, update=False, dataToFill=None):
         super(FormDialog, self).__init__(parent)
         self.layout = QFormLayout(self)
         self.labels = []
@@ -17,6 +17,7 @@ class FormDialog(QDialog):
         self.papa = parent
         self.inputnamelist = inputnamelist
         self.tablename = tablename
+        self.dataToFill = dataToFill
 
         for i in range(len(inputnamelist)):
             tlabel = QLabel(inputnamelist[i])
@@ -26,16 +27,30 @@ class FormDialog(QDialog):
                 tinput.addItem("Guest")
                 tinput.addItem("Students")
                 tinput.addItem("Staff")
-            elif ("issuetime" in self.inputnamelist[i]) or ("datetime" in self.inputnamelist[i]) or ("timestamp" in self.inputnamelist[i]):
+                if dataToFill != None:
+                    tlist = ["Faculty", "Guest", "Students", "Staff"]
+                    try:
+                        tinput.setCurrentIndex(tlist.index(dataToFill[i]))
+                    except:
+                        pass
+            elif ("issuetime" in self.inputnamelist[i]) or ("datetime" in self.inputnamelist[i]):
                 tinput = QDateTimeEdit(self)
                 tinput.setCalendarPopup(True)
                 tinput.setDisplayFormat("dd-MM-yyyy hh:mm")
+                if dataToFill != None:
+                    tinput.setDateTime(dataToFill[i])
             elif "date" in self.inputnamelist[i]:
                 tinput = QDateEdit(self)
                 tinput.setCalendarPopup(True)
                 tinput.setDisplayFormat("dd-MM-yyyy")
+                if dataToFill != None:
+                    tinput.setDate(dataToFill[i])
+            elif "timestamp" in self.inputnamelist[i]:
+                continue
             else:
                 tinput = QLineEdit(parent)
+                if dataToFill != None:
+                    tinput.setText(dataToFill[i])
             
             self.labels.append(tlabel)
             self.inputs.append(tinput)
@@ -45,7 +60,7 @@ class FormDialog(QDialog):
                 reg = QRegExp("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
             elif "year" in self.inputnamelist[i]:
                 reg = QRegExp("[0-9]{,4}")
-            elif "name" in self.inputnamelist[i] or "title" in self.inputnamelist[i]:
+            elif "name" in self.inputnamelist[i] or "title" in self.inputnamelist[i] or "text" in self.inputnamelist[i]:
                 reg = QRegExp("[\s\S]+")
             else:
                 reg = QRegExp("[\S]+")
@@ -55,18 +70,94 @@ class FormDialog(QDialog):
                 self.inputs[i].setValidator(input_validator)            
             self.layout.addRow(tlabel, tinput)
 
-        self.submitbtn = QPushButton("Submit")
+        if not update:
+            self.submitbtn = QPushButton("Submit")
+        else:
+            self.submitbtn = QPushButton("Update")
+
         self.cancelbtn = QPushButton("Cancel")
         self.cancelbtn.clicked.connect(self.close)
-        self.submitbtn.clicked.connect(lambda: self.addDatatoDatabase())
+        try: self.submitbtn.clicked.disconnect() 
+        except Exception: pass
+        if not update:
+            self.submitbtn.clicked.connect(self.addDatatoDatabase)
+        else:
+            self.submitbtn.clicked.connect(self.updateDatatoDatabase)
+
         self.labels.append(self.submitbtn)
         self.inputs.append(self.cancelbtn)
         self.layout.addRow(self.submitbtn, self.cancelbtn)
 
         self.setLayout(self.layout)
 
-    @LibMS
-    def addDatatoDatabase(self, cursor):
+
+    def updateDatatoDatabase(self):
+        query = "UPDATE "+self.tablename+" SET "
+        
+        for i in range(len(self.inputnamelist)):
+            if type(self.inputs[i]) == QDateEdit :
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].date().toString("yyyy-MM-dd")+"',"
+            elif type(self.inputs[i]) == QDateTimeEdit :
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].dateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
+            elif type(self.inputs[i]) == QComboBox :
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].currentText()+"',"
+            elif(self.inputs[i].text() != ""):
+                if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+                elif "'" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+'= "'+self.inputs[i].text()+'",'
+                elif "timestamp" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+"='"+QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
+                elif "time" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+                elif "year" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+                else:
+                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+            else:
+                for j in range(len(self.inputnamelist)):
+                    if type(self.inputs[j]) != QPushButton and type(self.inputs[j]) != QComboBox and type(self.inputs[j]) != QDateEdit and type(self.inputs[j]) != QDateTimeEdit:
+                        self.inputs[j].clear()
+                return
+        query = query[:-1]
+        query += " WHERE "
+
+        headlist = self.inputnamelist
+        for j in range(len(headlist)):
+            if ("date" in headlist[j]) or ("time" in headlist[j]) or ("usertype" in headlist[j]):
+                continue
+            if "id" in headlist[j]:
+                query += " ("+headlist[j]+" = "+self.dataToFill[j]+" )"
+            elif "'" not in self.dataToFill[j]:
+                query += " ("+headlist[j]+" = '"+self.dataToFill[j]+"' )"
+            else:
+                query += " ("+headlist[j]+' = "'+self.dataToFill[j]+'" )'
+
+            query += " AND"
+        query = query[:-3]
+
+        try:
+            print(query)
+            self.runQuery(quer=query)
+            self.papa.papa.tabWidget.refresh()
+            self.dialog2 = QMessageBox(self)
+            self.dialog2.setIcon(QMessageBox.Information)
+            self.dialog2.setText("Successfully Updated!")
+            self.dialog2.setWindowTitle("Success!")
+            self.dialog2.setStandardButtons(QMessageBox.Ok)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
+            self.dialog2.show()
+        except:
+            self.dialog2 = QMessageBox(self)
+            self.dialog2.setIcon(QMessageBox.Critical)
+            self.dialog2.setText("Can't Update. Incorrect Input. Try Again!")
+            self.dialog2.setWindowTitle("Error!")
+            self.dialog2.setStandardButtons(QMessageBox.Close)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
+            self.dialog2.show()
+        self.close()
+
+    def addDatatoDatabase(self):
         query = "INSERT INTO "+self.tablename+" ("
         for i in range(len(self.inputnamelist)):
             query += " "+self.inputnamelist[i]+","
@@ -84,6 +175,8 @@ class FormDialog(QDialog):
                     query += " "+self.inputs[i].text()+","
                 elif "'" in self.inputnamelist[i]:
                     query += ' "'+self.inputs[i].text()+'",'
+                elif "timestamp" in self.inputnamelist[i]:
+                    query += " '"+QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
                 elif "time" in self.inputnamelist[i]:
                     query += " '"+self.inputs[i].text()+"',"
                 elif "year" in self.inputnamelist[i]:
@@ -92,7 +185,7 @@ class FormDialog(QDialog):
                     query += ' "'+self.inputs[i].text()+'",'
             else:
                 for j in range(len(self.inputnamelist)):
-                    if type(self.inputs[j]) != QComboBox and type(self.inputs[j]) != QDateEdit and type(self.inputs[j]) != QDateTimeEdit:
+                    if type(self.inputs[j]) != QPushButton and type(self.inputs[j]) != QComboBox and type(self.inputs[j]) != QDateEdit and type(self.inputs[j]) != QDateTimeEdit:
                         self.inputs[j].clear()
                 return
         query = query[:-1]
@@ -101,6 +194,14 @@ class FormDialog(QDialog):
         try:
             print(query)
             self.runQuery(quer=query)
+            self.papa.papa.tabWidget.refresh()
+            self.dialog2 = QMessageBox(self)
+            self.dialog2.setIcon(QMessageBox.Information)
+            self.dialog2.setText("Successfully Added!")
+            self.dialog2.setWindowTitle("Success!")
+            self.dialog2.setStandardButtons(QMessageBox.Ok)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
+            self.dialog2.show()
         except:
             self.dialog2 = QMessageBox(self)
             self.dialog2.setIcon(QMessageBox.Critical)
@@ -109,7 +210,6 @@ class FormDialog(QDialog):
             self.dialog2.setStandardButtons(QMessageBox.Close)
             self.dialog2.buttonClicked.connect(self.dialog2.close)
             self.dialog2.show()
-        self.papa.papa.tabWidget.refresh()
         self.close()
 
     @LibMS

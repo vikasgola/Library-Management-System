@@ -10,7 +10,7 @@ import pymysql as sql
 from Library_Management_System.gui.tablewidget import TableWidget
 
 class TabWidget(QTabWidget):
-    def __init__(self, parent, queries=None):
+    def __init__(self, parent, queries=None, tabnames=None):
         super(TabWidget, self).__init__(parent)
         self.tabnames = parent.tabnames
         self.tablist = []
@@ -19,7 +19,11 @@ class TabWidget(QTabWidget):
 
         for i in range(len(self.tabnames)):
             self.tablist.append(QWidget())
-            self.addTab(self.tablist[i], self.tabnames[i])
+            if(tabnames != None):
+                self.addTab(self.tablist[i], tabnames[i])
+            else:
+                self.addTab(self.tablist[i], self.tabnames[i])
+
             self.tablist[i].layout = QVBoxLayout(self)
             if queries == None:
                 self.tablist[i].layout.addWidget(TableWidget(self, tablename=self.tabnames[i]))
@@ -28,7 +32,8 @@ class TabWidget(QTabWidget):
             self.tablist[i].setLayout(self.tablist[i].layout)
 
     def refresh(self):
-        index = self.currentIndex()
-        widget = self.widget(index).layout.itemAt(0).widget()
-        widget.clear()
-        widget.fillData(query=self.queries)
+        for i in range(len(self.tablist)):
+            # index = self.currentIndex()
+            widget = self.widget(i).layout.itemAt(0).widget()
+            widget.clear()
+            widget.fillData(query=self.queries)

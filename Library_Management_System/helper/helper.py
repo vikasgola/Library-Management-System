@@ -4,12 +4,14 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import pymysql as sql
+import getpass
 
 username = None
 password = None
 dbname = "LibMS"
-usermode = None
-
+usermode = "admin"
+libraryUsername = None
 
 def LibMS(func):
     def inner(*args, **kwargs):
@@ -28,12 +30,11 @@ class LoginWindow(QDialog):
         super(LoginWindow, self).__init__(parent)
         self.papa = parent
         self.setFixedWidth(400)
-        self.setFixedHeight(260)
+        self.setFixedHeight(280)
 
         self.setWindowTitle("Library Management System")
         self.layout = QFormLayout(self)
 
-        usermode = "Admin"
         self.note = QLabel("Admin Login")
         self.font = QFont()
         self.font.setPointSize(32)
@@ -80,6 +81,9 @@ class LoginWindow(QDialog):
         self.userfield = QLineEdit(self)
         self.userfield.setFont(self.font2)
         self.userlabel.setFont(self.font2)
+        reg = QRegExp("[\S]+")
+        input_validator = QRegExpValidator(reg, self.userfield)
+        self.userfield.setValidator(input_validator)  
         self.layout.addRow(self.userlabel, self.userfield)
 
         self.passlabel = QLabel("Password: ")
@@ -94,7 +98,7 @@ class LoginWindow(QDialog):
         self.cancel = QPushButton("Cancel")
         self.submit.setFont(self.font2)
         self.cancel.setFont(self.font2)
-        self.cancel.clicked.connect(self.reject)
+        self.cancel.clicked.connect(lambda: (self.reject(), self.close()))
         self.submit.clicked.connect(self.handleLogin)
         self.layout.addRow(self.submit, self.cancel)
         
@@ -116,7 +120,7 @@ class LoginWindow(QDialog):
 
         username = "lmsuser"
         password = "lmsuserpassword"
-        self.setFixedHeight(260)
+        self.setFixedHeight(280)
         self.namelabel.hide()
         self.namefield.hide()
         self.utypefield.hide()
@@ -203,19 +207,20 @@ class LoginWindow(QDialog):
 
     def handleLogin(self):
         try:
-            global usermode
+            global usermode, libraryUsername
             global username, password
 
-            if not self.checkAdmin():
+            if usermode == "user":
                 connection = sql.connect(host='localhost', user=username, password=password, database=dbname)
+                libraryUsername = self.userfield.text()
                 connection.close()
             else:
                 connection = sql.connect(host='localhost', user=self.userfield.text(), password=self.passfield.text(), database=dbname)
+                username = self.userfield.text()
+                password = self.passfield.text()
                 connection.close()
 
-            username = self.userfield.text()
-            password = self.passfield.text()
-            if self.checkAdmin():
+            if self.checkUser() or usermode == "admin":
                 self.accept()
                 self.close()
             else:
@@ -235,8 +240,46 @@ class LoginWindow(QDialog):
             self.userfield.clear(),
             self.passfield.clear()
 
-    def checkAdmin(self):
-        if usermode == "admin":
-            return True
-        else:
-            return False
+    @LibMS
+    def checkUser(self, cursor):
+        _username = self.userfield.text()
+        _password = self.passfield.text()
+
+        cursor.execute("SELECT username, password FROM User;")
+        data = cursor.fetchall()
+        for localu in data:
+            if _username == localu[0] and _password == localu[1]:
+                return True
+        return False
+
+
+@LibMS
+def getUserDetails(cursor, _username):
+    userDetails = {}
+    cursor.execute("SELECT user_id, name, username, email FROM User WHERE User.username = '"+_username+"' ;")
+    data = cursor.fetchall()
+    if( len(data) > 0):
+        data = data[0]
+    else:
+        returns
+    userDetails["user_id"] = data[0]
+    userDetails["name"] = data[1]
+    userDetails["username"] = data[2]
+    userDetails["email"] = data[3]
+    return userDetails
+
+def setUsername(_username):
+    global username
+    username = _username
+
+def setPassword(_password):
+    global password
+    password = _password
+
+def getLibraryUsername():
+    global libraryUsername
+    return libraryUsername
+
+def getUserMode():
+    global usermode
+    return usermode

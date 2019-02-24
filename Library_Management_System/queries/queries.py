@@ -142,3 +142,15 @@ def query11(cursor):
     print(out)
 
     print("==============================================================================")
+
+
+def runQueries():
+    query1()
+    query2()
+    query3()
+    query4(book="Let them eat cake.")
+    query5(user="Shad Becker")
+    query7(date1="2017-06-06", date2="2018-01-01")
+    query9(date1="2018-01-01", date2="2018-06-01")
+    query10()
+    query11()

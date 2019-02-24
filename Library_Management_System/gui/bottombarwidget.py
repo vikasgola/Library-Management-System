@@ -18,13 +18,19 @@ class BottombarWidget(QWidget):
         self.addSearchBar(parent)
         self.papa = parent
 
-        if addbutton:
-            self.btn1 = QPushButton(self)
-            self.btn1.setText("Add Data")
-            self.btn1.setFixedWidth(100)
-            self.btn1.clicked.connect(self.handleAddButton)
-            self.layout.addWidget(self.btn1, 1, Qt.AlignRight)
+    
+        self.btn1 = QPushButton(self)
+        self.btn1.setText("Add Data")
+        self.btn1.setFixedWidth(100)
+        self.btn1.clicked.connect(self.handleAddButton)
+        self.layout.addWidget(self.btn1, 2, Qt.AlignRight)
         
+        self.btn3 = QPushButton(self)
+        self.btn3.setText("Update Data")
+        self.btn3.setFixedWidth(100)
+        self.btn3.clicked.connect(self.handleUpdateButton)
+        self.layout.addWidget(self.btn3, 1, Qt.AlignRight)
+    
         self.btn2 = QPushButton(self)
         self.btn2.setText("Delete Data")
         self.btn2.setFixedWidth(100)
@@ -57,6 +63,41 @@ class BottombarWidget(QWidget):
         searchedWindow = SearchedWindow(self.papa, searchtext)
         searchedWindow.show()
 
+    def handleUpdateButton(self):
+        index = self.papa.tabWidget.currentIndex()
+        tabWidget = self.papa.tabWidget.widget(index).layout.itemAt(0).widget()
+        selectedRows = [idx.row() for idx in tabWidget.selectionModel().selectedRows()]
+        self.dialog = QMessageBox(self)
+        self.dialog.setIcon(QMessageBox.Warning)
+        if len(selectedRows) > 1:
+            self.dialog.setText("Only 1 Row can be selected for Update Purpose.")
+            self.dialog.setStandardButtons( QMessageBox.Ok)
+            self.dialog.setWindowTitle("updation")
+            retval = self.dialog.exec_()
+            if retval == QMessageBox.Ok:
+                self.dialog.close()
+                return
+        elif len(selectedRows) == 0:
+            self.dialog.setText("No Row was selected. Please select a row.")
+            self.dialog.setStandardButtons( QMessageBox.Close)
+            self.dialog.setWindowTitle("updation")
+            retval = self.dialog.exec_()
+            if retval == QMessageBox.Close:
+                self.dialog.close()
+                return
+
+        inputfield = self.getColumnNameListExceptPrimaryKey(tablename=self.papa.tabnames[index])
+        data = []
+        allcol = self.getColumnNameList(tablename=self.papa.tabnames[index])
+        for i in range(len(allcol)):
+            if allcol[i] not in inputfield:
+                continue
+            data.append(tabWidget.item(selectedRows[0], i).text())
+        assert(len(inputfield) == len(data))
+
+        self.updateform = FormDialog(self, inputnamelist=inputfield, tablename=self.papa.tabnames[index], update=True, dataToFill=data)
+        self.updateform.show()
+        
     def handleAddButton(self):
         self.buttonbox = QDialog(self)
         self.buttonbox.setFixedWidth(200)
@@ -151,10 +192,20 @@ class BottombarWidget(QWidget):
                     else:
                         q += " ("+headlist[j]+' = "'+tabWidget.item(selectedRows[i],j).text()+'" )'
 
-                    q += " OR"
-                q = q[:-2]
+                    q += " AND"
+                q = q[:-3]
                 print(q)
                 self.deleteRow(query=q)
+
+            self.papa.papa.tabWidget.refresh()
+            self.dialog2 = QMessageBox(self)
+            self.dialog2.setIcon(QMessageBox.Information)
+            self.dialog2.setText("Successfully Deleted!")
+            self.dialog2.setWindowTitle("Success!")
+            self.dialog2.setStandardButtons(QMessageBox.Ok)
+            self.dialog2.buttonClicked.connect(self.dialog2.close)
+            self.dialog2.show()
+            self.papa.tabWidget.refresh()
         except:
             self.dialog2 = QMessageBox(self)
             self.dialog2.setIcon(QMessageBox.Critical)
@@ -163,7 +214,6 @@ class BottombarWidget(QWidget):
             self.dialog2.setStandardButtons(QMessageBox.Close)
             self.dialog2.buttonClicked.connect(self.dialog2.close)
             self.dialog2.show()
-        self.papa.tabWidget.refresh()
 
 class SearchedWindow(QMainWindow):
     def __init__(self, parent, searchtext):

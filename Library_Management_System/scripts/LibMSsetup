@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "Setting Up PC for LibMS"
+echo ""
+
+sudo apt-get install mysql-client mysql-server python3
+
+echo "Creating a Database for Library Management System (LibMS)"
+python3 Library_Management_System/helper/init.py
+
+echo "Finished!"

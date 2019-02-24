@@ -1,3 +1,4 @@
+import Library_Management_System.database.database as db
 from Library_Management_System.helper.helper import *
 import random,copy, datetime
 from mimesis import Person, Business, Text, Numbers, Datetime, Code
@@ -18,6 +19,7 @@ authorpaper = []
 booktag =[]
 periodicaltag = []
 history = []
+discipline = []
 
 @LibMS
 def addtoDataBase(cursor, tablename, data):
@@ -47,7 +49,7 @@ def createData(num):
         })
     
     # users
-    for i in range(random.randint(num//4, num*4)):
+    for i in range(random.randint(num//4, num)):
         users.append({
             "name": Person().full_name(),
             "password": Person().password(),
@@ -60,10 +62,10 @@ def createData(num):
     for i in range(random.randint(num//2, num*8)):
         messages.append({
             "text": Text().sentence(),
-            "user_id": Numbers().between(minimum=1, maximum=num),
+            "user_id": Numbers().between(minimum=1, maximum=len(users)),
             "timestamp": Datetime().datetime()
         })
-    
+
     # books
     for i in range(random.randint(num//4, num*4)):
         if random.random() < 0.4:
@@ -74,7 +76,7 @@ def createData(num):
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(),
                 # "issuetime": Datetime().datetime(),
-                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 # "user_id": Numbers().between(minimum=1, maximum=num)
             })
         else:
@@ -85,8 +87,8 @@ def createData(num):
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(),
                 "issuetime": Datetime().datetime(),
-                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
-                "user_id": Numbers().between(minimum=1, maximum=num)
+                "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
+                "user_id": Numbers().between(minimum=1, maximum=len(users))
             })
 
     # Periodical
@@ -98,7 +100,7 @@ def createData(num):
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(),
                 # "issuetime": Datetime().datetime(),
-                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
+                "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 # "user_id": Numbers().between(minimum=1, maximum=num),
                 "volume": Numbers().between(minimum=1, maximum=10)
             })
@@ -109,8 +111,8 @@ def createData(num):
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(),
                 "issuetime": Datetime().datetime(),
-                "publisher_id": Numbers().between(minimum=1, maximum=num//2),
-                "user_id": Numbers().between(minimum=1, maximum=num),
+                "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
+                "user_id": Numbers().between(minimum=1, maximum=len(users)),
                 "volume": Numbers().between(minimum=1, maximum=10)
             })
 
@@ -118,7 +120,7 @@ def createData(num):
     for i in range(random.randint(num//4, num*2)):
         papers.append({
             "name": Text().quote(),
-            "periodical_id": Numbers().between(minimum=1, maximum=num*int(1.5))
+            "periodical_id": Numbers().between(minimum=1, maximum=len(periodicals))
         })
 
     # book author
@@ -162,18 +164,22 @@ def createData(num):
             "user_id": Numbers().between(minimum=1, maximum = len(users)),
         })
 
-    # capacity
-    # for i in range(num*int(1.5)):
-    #     capacity.append({
-    #         "title": Text.title(),
-    #         "year": Datetime.year(minimum=2013, maximum=2018),
-    #         "isbn" : Code().isbn(),
-    #         "adddate": Datetime.date(),
-    #         "issuetime": Datetime.datetime(),
-    #         "publisher_id": Numbers.between(minimum=1, maximum=num//2),
-    #         "user_id": Numbers.between(minimum=1, maximum=num)
-    #     })
+    temp = ['Students', 'Faculty', 'Staff', 'Guest']
+    mb = [3, 6, 4, 2]
+    md = [15, 30, 30, 7]
+    for i in range(4):
+        capacity.append({
+            "usertype": temp[i],
+            "maxbooks": mb[i],
+            "maxdays" : md[i],
+        })
 
+    # discipline
+    for i in range(books)):
+        discipline.append({
+            "discipline": Text().quote(),
+            "book_id": i+1,
+        })
 
 
 def addAllData():
@@ -192,9 +198,18 @@ def addAllData():
     addtoDataBase(tablename="PeriodicalTag", data=periodicaltag)
 
     addtoDataBase(tablename="History", data=history)
-
+    addtoDataBase(tablename="Capacity", data=capacity)
+    addtoDataBase(tablename="Discipline", data=discipline)
 
 
 def addRandomDataToDB(num=100):
     createData(num)
     addAllData()
+
+
+def buildLibMS():
+    db.createTables()
+    db.addUserType()
+    db.addDisciplineToBook()
+    db.addHistory()
+    addRandomDataToDB(200)

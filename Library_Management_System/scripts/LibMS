@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Starting Library Management System"
+python3 Library_Management_System/helper/run.py

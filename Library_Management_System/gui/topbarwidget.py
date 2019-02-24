@@ -42,19 +42,21 @@ class TopbarWidget(QWidget):
         self.layout.addWidget(self.btn1)
         self.setLayout(self.layout)
 
-    def closeDialog(self):
-        self.dialog.close()
-        self.searchBar.setText("")
-
     def handleSeachBar(self):
-        if( ("SELECT" in self.searchBar.toPlainText()) or ("select" in self.searchBar.toPlainText()) ):
-            queryWindow = QueryWindow(self.papa, self.searchBar.toPlainText())
-            queryWindow.show()
+        if( (("SELECT" in self.searchBar.toPlainText()) 
+            or ("select" in self.searchBar.toPlainText()))
+            and ("insert" not in self.searchBar.toPlainText())
+            and ("drop" not in self.searchBar.toPlainText())
+            and ("alter" not in self.searchBar.toPlainText())
+            and ("create" not in self.searchBar.toPlainText())):
+            self.queryWindow = QueryWindow(self.papa, self.searchBar.toPlainText())
+            self.queryWindow.show()
         else:
+            self.queryWindow.close()
             self.dialog = QMessageBox(self)
             self.dialog.setIcon(QMessageBox.Critical)
             self.dialog.setText("Not SELECT query!. Only SELECT queries can be used. Please Try Again with SELECT query.")
             self.dialog.setWindowTitle("Not SELECT query!")
             self.dialog.setStandardButtons(QMessageBox.Close)
-            self.dialog.buttonClicked.connect(self.closeDialog)
+            self.dialog.buttonClicked.connect(self.dialog.close)
             self.dialog.show()

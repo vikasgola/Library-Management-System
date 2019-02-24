@@ -1,27 +1,6 @@
 import pymysql as sql
 from Library_Management_System.helper.helper import *
 
-def createDatabase():
-    connection = sql.connect(host='localhost', user=username, password=password)
-    
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("CREATE DATABASE LibMS;")
-        connection.commit()
-    finally:
-        connection.close()
-
-
-def clear():
-    connection = sql.connect(host='localhost', user=username, password=password)
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("drop database LibMS;")
-        connection.commit()
-    finally:
-        connection.close()
-
-
 @LibMS
 def createTables(cursor):
     cursor.execute("""CREATE TABLE User(
@@ -162,21 +141,16 @@ def addUserType(cursor):
     cursor.execute("""ALTER TABLE User
                         ADD usertype ENUM('Students', 'Faculty', 'Staff', 'Guest');""")
 
-    # cursor.execute("""ALTER TABLE User
-    #                     ADD FOREIGN KEY (usertype) REFERENCES Capacity(usertype);""")
-
-
 
 @LibMS
 def addDisciplineToBook(cursor):
     cursor.execute("""CREATE TABLE Discipline(
                         book_id INT NOT NULL,
-                        discipline VARCHAR(50) NOT NULL,
+                        discipline VARCHAR(1000) NOT NULL,
                         PRIMARY KEY ( book_id, discipline ) );""")
 
     cursor.execute("""ALTER TABLE Discipline
                         ADD FOREIGN KEY (book_id) REFERENCES Book(book_id);""")
-
 
 
 @LibMS

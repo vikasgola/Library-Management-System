@@ -54,6 +54,8 @@ class TableWidget(QtWidgets.QTableWidget):
                 for dd in range(len(data[d])):
                     self.words.append(str(data[d][dd]))
                     self.setItem(d, dd, QtWidgets.QTableWidgetItem(str(data[d][dd])))
+        else:
+            self.setRowCount(1)
 
         if(self.tablename != None):
             cursor.execute("SHOW COLUMNS FROM "+self.tablename)
@@ -63,7 +65,7 @@ class TableWidget(QtWidgets.QTableWidget):
                 for i in range(len(data)):
                     headlist.append(data[i][0])
                     self.setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem(data[i][0]))
-                self.resizeColumnsToContents()
+        self.resizeColumnsToContents()
 
     @pyqtSlot()
     def on_click(self):

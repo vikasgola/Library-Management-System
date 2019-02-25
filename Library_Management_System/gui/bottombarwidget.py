@@ -23,7 +23,7 @@ class BottombarWidget(QWidget):
         self.btn1.setText("Add Data")
         self.btn1.setFixedWidth(100)
         self.btn1.clicked.connect(self.handleAddButton)
-        self.layout.addWidget(self.btn1, 2, Qt.AlignRight)
+        self.layout.addWidget(self.btn1, 8, Qt.AlignRight)
         
         self.btn3 = QPushButton(self)
         self.btn3.setText("Update Data")
@@ -107,6 +107,8 @@ class BottombarWidget(QWidget):
         self.inputfields = []
         self.forms = []
         for i in range(len(self.papa.tabnames)):
+            if self.papa.tabnames[i] == "Capacity":
+                continue
             self.buttons.append(QPushButton(self.buttonbox))
             self.buttons[i].setText("Add "+self.papa.tabnames[i])
             inputfield = self.getColumnNameListExceptPrimaryKey(tablename=self.papa.tabnames[i])

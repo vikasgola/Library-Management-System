@@ -108,7 +108,6 @@ def createTables(cursor):
 
 
 
-
     cursor.execute("""ALTER TABLE BookAuthor
                         ADD FOREIGN KEY (book_id) REFERENCES Book(book_id),
                         ADD FOREIGN KEY (author_id) REFERENCES Author(author_id);""")
@@ -146,8 +145,7 @@ def addUserType(cursor):
 def addDisciplineToBook(cursor):
     cursor.execute("""CREATE TABLE Discipline(
                         book_id INT NOT NULL,
-                        discipline VARCHAR(1000) NOT NULL,
-                        PRIMARY KEY ( book_id, discipline ) );""")
+                        discipline VARCHAR(1000) NOT NULL );""")
 
     cursor.execute("""ALTER TABLE Discipline
                         ADD FOREIGN KEY (book_id) REFERENCES Book(book_id);""")
@@ -155,7 +153,7 @@ def addDisciplineToBook(cursor):
 
 @LibMS
 def addHistory(cursor):
-    cursor.execute("""CREATE TABLE History(
+    cursor.execute("""CREATE TABLE BookHistory(
                         issuedate DATE NOT NULL,
                         returndate DATE NOT NULL,
                         book_id INT NOT NULL,
@@ -163,3 +161,12 @@ def addHistory(cursor):
                         FOREIGN KEY (book_id) REFERENCES Book(book_id),
                         FOREIGN KEY (user_id) REFERENCES User(user_id),
                         PRIMARY KEY ( issuedate, returndate, book_id ) );""")
+
+    cursor.execute("""CREATE TABLE PeriodicalHistory(
+                    issuedate DATE NOT NULL,
+                    returndate DATE NOT NULL,
+                    periodical_id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    FOREIGN KEY (periodical_id) REFERENCES Periodical(periodical_id),
+                    FOREIGN KEY (user_id) REFERENCES User(user_id),
+                    PRIMARY KEY ( issuedate, returndate, periodical_id ) );""")

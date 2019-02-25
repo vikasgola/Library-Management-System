@@ -18,7 +18,8 @@ bookauthor =[]
 authorpaper = []
 booktag =[]
 periodicaltag = []
-history = []
+bhistory = []
+phistory = []
 discipline = []
 
 @LibMS
@@ -55,7 +56,7 @@ def createData(num):
             "password": Person().password(),
             "username": Person().username(),
             "email": Person().email(),
-            "usertype": random.choice(ut) 
+            "usertype": random.choice(ut),
         })
 
     # messages
@@ -63,7 +64,7 @@ def createData(num):
         messages.append({
             "text": Text().sentence(),
             "user_id": Numbers().between(minimum=1, maximum=len(users)),
-            "timestamp": Datetime().datetime()
+            "timestamp": Datetime().datetime(start=2016,end=2018)
         })
 
     # books
@@ -74,19 +75,21 @@ def createData(num):
                 "title": Text().quote(),
                 "year": Datetime().year(minimum=2013, maximum=2018),
                 "isbn" : Code().isbn(),
-                "adddate": Datetime().date(),
+                "adddate": Datetime().date(start=2013, end=2018),
                 # "issuetime": Datetime().datetime(),
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 # "user_id": Numbers().between(minimum=1, maximum=num)
             })
         else:
+            opendate = Datetime().year(minimum=2013, maximum=2018)
+            adddate = Datetime().date(start=opendate, end=2018)
             books.append({
                 "pages": Numbers().between(minimum=100, maximum=1000),
                 "title": Text().quote(),
-                "year": Datetime().year(minimum=2013, maximum=2018),
+                "year": opendate,
                 "isbn" : Code().isbn(),
-                "adddate": Datetime().date(),
-                "issuetime": Datetime().datetime(),
+                "adddate": adddate,
+                "issuetime": Datetime().datetime(start=adddate.year, end=2018),
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 "user_id": Numbers().between(minimum=1, maximum=len(users))
             })
@@ -98,19 +101,21 @@ def createData(num):
                 "title": Text().quote(),
                 "year": Datetime().year(minimum=2013, maximum=2018),
                 "isbn" : Code().isbn(),
-                "adddate": Datetime().date(),
+                "adddate": Datetime().date(start=2013, end=2018),
                 # "issuetime": Datetime().datetime(),
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 # "user_id": Numbers().between(minimum=1, maximum=num),
                 "volume": Numbers().between(minimum=1, maximum=10)
             })
         else:
+            opendate = Datetime().year(minimum=2013, maximum=2018)
+            adddate = Datetime().date(start=opendate, end=2018)
             periodicals.append({
                 "title": Text().quote(),
-                "year": Datetime().year(minimum=2013, maximum=2018),
+                "year": opendate,
                 "isbn" : Code().isbn(),
-                "adddate": Datetime().date(),
-                "issuetime": Datetime().datetime(),
+                "adddate": adddate,
+                "issuetime": Datetime().datetime(start=adddate.year, end=2018),
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
                 "user_id": Numbers().between(minimum=1, maximum=len(users)),
                 "volume": Numbers().between(minimum=1, maximum=10)
@@ -153,14 +158,27 @@ def createData(num):
         })
 
 
-    # history tag
+    # book history tag
     for i in range(random.randint(num, num*10)):
-        issd = Datetime().date()
-        retd = copy.copy(issd) + datetime.timedelta(days= Numbers().between(minimum=2, maximum=60))
-        history.append({
+        boid = Numbers().between(minimum=1, maximum = len(books))
+        issd = Datetime().date(start=books[boid-1]["adddate"].year, end=2018)
+        retd = Datetime().date(start=issd.year, end=2018)
+        bhistory.append({
             "issuedate": issd,
             "returndate": retd,
-            "book_id": Numbers().between(minimum=1, maximum = len(books)),
+            "book_id": boid,
+            "user_id": Numbers().between(minimum=1, maximum = len(users)),
+        })
+
+    # periodical history tag
+    for i in range(random.randint(num, num*10)):
+        boid = Numbers().between(minimum=1, maximum = len(periodicals))
+        issd = Datetime().date(start=periodicals[boid-1]["adddate"].year, end=2018)
+        retd = Datetime().date(start=issd.year, end=2018)
+        phistory.append({
+            "issuedate": issd,
+            "returndate": retd,
+            "periodical_id": boid,
             "user_id": Numbers().between(minimum=1, maximum = len(users)),
         })
 
@@ -177,7 +195,7 @@ def createData(num):
     # discipline
     for i in range(len(books)):
         discipline.append({
-            "discipline": Text().quote(),
+            "discipline": Text().word(),
             "book_id": i+1,
         })
 
@@ -197,7 +215,8 @@ def addAllData():
     addtoDataBase(tablename="AuthorPaper", data=authorpaper)
     addtoDataBase(tablename="PeriodicalTag", data=periodicaltag)
 
-    addtoDataBase(tablename="History", data=history)
+    addtoDataBase(tablename="BookHistory", data=bhistory)
+    addtoDataBase(tablename="PeriodicalHistory", data=phistory)
     addtoDataBase(tablename="Capacity", data=capacity)
     addtoDataBase(tablename="Discipline", data=discipline)
 

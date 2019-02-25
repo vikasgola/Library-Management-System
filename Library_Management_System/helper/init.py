@@ -31,6 +31,7 @@ def createUser(username,password):
             _username = input("Username: ")
             _password = getpass.getpass("Password: ")
             while(_username == "" or _password == ""):
+                print("Username or Password can't be set to Blank.")
                 _username = input("Username: ")
                 _password = getpass.getpass("Password: ")
             try:    

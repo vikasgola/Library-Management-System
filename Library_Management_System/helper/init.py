@@ -1,4 +1,4 @@
-import Library_Management_System.data.data as d
+import Library_Management_System.datagenerator.datagenerator as d
 import Library_Management_System.helper.helper as hel
 import pymysql as sql
 import getpass
@@ -33,11 +33,14 @@ def createUser(username,password):
             while(_username == "" or _password == ""):
                 _username = input("Username: ")
                 _password = getpass.getpass("Password: ")
-            
-            cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
-            cursor.execute("GRANT ALL PRIVILEGES ON LibMS.* To '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
-            cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format("lmsuser","lmsuserpassword"))
-            cursor.execute("GRANT SELECT, INSERT, UPDATE ON LibMS.* To '{}'@'localhost' IDENTIFIED BY '{}';".format("lmsuser", "lmsuserpassword"))
+            try:    
+                cursor.execute("DROP USER '{}'@'localhost'".format(_username))
+                cursor.execute("DROP USER '{}'@'localhost';".format("lmsuser"))
+            finally:
+                cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
+                cursor.execute("GRANT ALL PRIVILEGES ON LibMS.* To '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
+                cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format("lmsuser","lmsuserpassword"))
+                cursor.execute("GRANT SELECT, INSERT, UPDATE ON LibMS.* To '{}'@'localhost' IDENTIFIED BY '{}';".format("lmsuser", "lmsuserpassword"))
         connection.commit()
     except:
         raise Exception("Failed to Create User")

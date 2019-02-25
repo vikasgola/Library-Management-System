@@ -175,7 +175,7 @@ def createData(num):
         })
 
     # discipline
-    for i in range(books)):
+    for i in range(len(books)):
         discipline.append({
             "discipline": Text().quote(),
             "book_id": i+1,

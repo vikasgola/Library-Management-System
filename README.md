@@ -9,9 +9,13 @@ A Library Management System for IIT Jammu in Mysql Database and Python.
 - mimesis
 - pymysql
 
-## How to Run
-- git clone https://github.com/vikasgola/Library-Management-System/
+## How to Run Gui
+- git clone https://github.com/vikasgola/Library-Management-System
 - cd Library-Management-System
 - python3 setup.py install
 - LibMSsetup
 - LibMS
+
+## How to Run Queries
+- cd Library_Management_System/queries/
+- python3 queries.py

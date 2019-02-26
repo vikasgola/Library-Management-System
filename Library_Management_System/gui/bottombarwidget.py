@@ -107,13 +107,11 @@ class BottombarWidget(QWidget):
         self.inputfields = []
         self.forms = []
         for i in range(len(self.papa.tabnames)):
-            if self.papa.tabnames[i] == "Capacity":
-                continue
             self.buttons.append(QPushButton(self.buttonbox))
             self.buttons[i].setText("Add "+self.papa.tabnames[i])
             inputfield = self.getColumnNameListExceptPrimaryKey(tablename=self.papa.tabnames[i])
             self.inputfields.append(inputfield)
-            self.forms.append(FormDialog(self, self.inputfields[i], tablename=self.papa.tabnames[i]))
+            self.forms.append(FormDialog(self, inputnamelist=self.inputfields[i], tablename=self.papa.tabnames[i]))
             self.forms[i].setWindowTitle("Add new "+self.papa.tabnames[i])
             self.buttons[i].clicked.connect(partial(self.handleChildAddButton, self.forms[i]))
             self.layout.addWidget(self.buttons[i])
@@ -199,7 +197,7 @@ class BottombarWidget(QWidget):
                 print(q)
                 self.deleteRow(query=q)
 
-            self.papa.papa.tabWidget.refresh()
+            self.papa.tabWidget.refresh()
             self.dialog2 = QMessageBox(self)
             self.dialog2.setIcon(QMessageBox.Information)
             self.dialog2.setText("Successfully Deleted!")
@@ -207,7 +205,6 @@ class BottombarWidget(QWidget):
             self.dialog2.setStandardButtons(QMessageBox.Ok)
             self.dialog2.buttonClicked.connect(self.dialog2.close)
             self.dialog2.show()
-            self.papa.tabWidget.refresh()
         except:
             self.dialog2 = QMessageBox(self)
             self.dialog2.setIcon(QMessageBox.Critical)

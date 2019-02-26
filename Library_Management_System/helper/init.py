@@ -37,7 +37,7 @@ def createUser(username,password):
             try:    
                 cursor.execute("DROP USER '{}'@'localhost'".format(_username))
                 cursor.execute("DROP USER '{}'@'localhost';".format("lmsuser"))
-            finally:
+            except:
                 cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
                 cursor.execute("GRANT ALL PRIVILEGES ON LibMS.* To '{}'@'localhost' IDENTIFIED BY '{}';".format(_username, _password))
                 cursor.execute("CREATE USER '{}'@'localhost' IDENTIFIED BY '{}';".format("lmsuser","lmsuserpassword"))

@@ -20,7 +20,11 @@ class FormDialog(QDialog):
         self.dataToFill = dataToFill
 
         for i in range(len(inputnamelist)):
-            tlabel = QLabel(inputnamelist[i])
+            if (tablename == "Book" or tablename == "Periodical") and (inputnamelist[i] == "user_id" or inputnamelist[i] == "issuetime") :
+                tlabel = QLabel(inputnamelist[i]+" (optional)")
+            else:
+                tlabel = QLabel(inputnamelist[i])
+            
             if inputnamelist[i] == "usertype":
                 tinput = QComboBox(self)
                 tinput.addItem("Faculty")
@@ -38,28 +42,33 @@ class FormDialog(QDialog):
                 tinput.setCalendarPopup(True)
                 tinput.setDisplayFormat("dd-MM-yyyy hh:mm")
                 if dataToFill != None:
-                    tinput.setDateTime(dataToFill[i])
+                    tinput.setDateTime(QDateTime.fromString(dataToFill[i]))
             elif "date" in self.inputnamelist[i]:
                 tinput = QDateEdit(self)
                 tinput.setCalendarPopup(True)
                 tinput.setDisplayFormat("dd-MM-yyyy")
                 if dataToFill != None:
-                    tinput.setDate(dataToFill[i])
+                    tinput.setDate(QDate.fromString(dataToFill[i]))
             elif "timestamp" in self.inputnamelist[i]:
                 continue
             else:
-                tinput = QLineEdit(parent)
+                tinput = QLineEdit(parent)            
                 if dataToFill != None:
-                    tinput.setText(dataToFill[i])
-            
+                    if dataToFill[i] == "None" or dataToFill[i] == None:
+                        pass
+                    if "year" in self.inputnamelist[i]:
+                        tinput.setText(dataToFill[i][2:])
+                    else:
+                        tinput.setText(dataToFill[i])
+                    
             self.labels.append(tlabel)
             self.inputs.append(tinput)
-            if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i]:
+            if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i] or "volume" in self.inputnamelist[i]:
                 reg = QRegExp("[0-9]+")
             elif "time" in self.inputnamelist[i]:
                 reg = QRegExp("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
             elif "year" in self.inputnamelist[i]:
-                reg = QRegExp("[0-9]{,4}")
+                reg = QRegExp("[0-9]{,2}")
             elif "name" in self.inputnamelist[i] or "title" in self.inputnamelist[i] or "text" in self.inputnamelist[i]:
                 reg = QRegExp("[\s\S]+")
             else:
@@ -92,28 +101,39 @@ class FormDialog(QDialog):
 
 
     def updateDatatoDatabase(self):
+        uind = -1
+        isUNull = False
+        if self.tablename == "Book" or self.tablename == "Periodical":
+            uind = self.inputnamelist.index("user_id")
+            if self.inputs[uind].text() == "":
+                self.inputs[uind].setText("NULL")
+                isUNull = True
+
         query = "UPDATE "+self.tablename+" SET "
         
         for i in range(len(self.inputnamelist)):
             if type(self.inputs[i]) == QDateEdit :
-                    query += self.inputnamelist[i]+"='"+self.inputs[i].date().toString("yyyy-MM-dd")+"',"
+                query += self.inputnamelist[i]+"='"+self.inputs[i].date().toString("yyyy-MM-dd")+"',"
             elif type(self.inputs[i]) == QDateTimeEdit :
+                if isUNull:
+                    query += self.inputnamelist[i]+"= NULL,"                
+                else:
                     query += self.inputnamelist[i]+"='"+self.inputs[i].dateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
             elif type(self.inputs[i]) == QComboBox :
-                    query += self.inputnamelist[i]+"='"+self.inputs[i].currentText()+"',"
+                query += self.inputnamelist[i]+"='"+self.inputs[i].currentText()+"',"
             elif(self.inputs[i].text() != ""):
-                if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i]:
-                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
-                elif "'" in self.inputnamelist[i]:
-                    query += self.inputnamelist[i]+'= "'+self.inputs[i].text()+'",'
+                if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i] or "volume" in self.inputnamelist[i]:
+                    query += self.inputnamelist[i]+"= "+self.inputs[i].text()+","
                 elif "timestamp" in self.inputnamelist[i]:
                     query += self.inputnamelist[i]+"='"+QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
                 elif "time" in self.inputnamelist[i]:
                     query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
                 elif "year" in self.inputnamelist[i]:
                     query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+                elif "'" in self.inputs[i].text():
+                    query += self.inputnamelist[i]+'= "'+self.inputs[i].text()+'",'
                 else:
-                    query += self.inputnamelist[i]+"='"+self.inputs[i].text()+"',"
+                    query += self.inputnamelist[i]+"= '"+self.inputs[i].text()+"',"
             else:
                 for j in range(len(self.inputnamelist)):
                     if type(self.inputs[j]) != QPushButton and type(self.inputs[j]) != QComboBox and type(self.inputs[j]) != QDateEdit and type(self.inputs[j]) != QDateTimeEdit:
@@ -124,10 +144,12 @@ class FormDialog(QDialog):
 
         headlist = self.inputnamelist
         for j in range(len(headlist)):
-            if ("date" in headlist[j]) or ("time" in headlist[j]) or ("usertype" in headlist[j]):
+            if ("date" in headlist[j]) or ("time" in headlist[j]) or ("usertype" in headlist[j] or self.dataToFill[j] == "None" or self.dataToFill[j] == None):
                 continue
-            if "id" in headlist[j]:
+            if "id" in headlist[j] or "pages" in headlist[j] or "volume" in headlist[j]:
                 query += " ("+headlist[j]+" = "+self.dataToFill[j]+" )"
+            elif "year" in self.dataToFill[j]:
+                query += " ("+headlist[j]+" = '"+self.dataToFill[j][2:]+"' )"            
             elif "'" not in self.dataToFill[j]:
                 query += " ("+headlist[j]+" = '"+self.dataToFill[j]+"' )"
             else:
@@ -158,6 +180,14 @@ class FormDialog(QDialog):
         self.close()
 
     def addDatatoDatabase(self):
+        uind = -1
+        isUNull = False
+        if self.tablename == "Book" or self.tablename == "Periodical":
+            uind = self.inputnamelist.index("user_id")
+            if self.inputs[uind].text() == "":
+                self.inputs[uind].setText("NULL")
+                isUNull = True
+
         query = "INSERT INTO "+self.tablename+" ("
         for i in range(len(self.inputnamelist)):
             query += " "+self.inputnamelist[i]+","
@@ -165,15 +195,18 @@ class FormDialog(QDialog):
         query += ") VALUES ("
         for i in range(len(self.inputnamelist)):
             if type(self.inputs[i]) == QDateEdit :
-                    query += " '"+self.inputs[i].date().toString("yyyy-MM-dd")+"',"
+                query += " '"+self.inputs[i].date().toString("yyyy-MM-dd")+"',"
             elif type(self.inputs[i]) == QDateTimeEdit :
+                if isUNull:
+                    query += " NULL,"
+                else:
                     query += " '"+self.inputs[i].dateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
             elif type(self.inputs[i]) == QComboBox :
-                    query += ' "'+self.inputs[i].currentText()+'",'
+                query += ' "'+self.inputs[i].currentText()+'",'
             elif(self.inputs[i].text() != ""):
-                if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i]:
+                if "id" in self.inputnamelist[i] or "pages" in self.inputnamelist[i] or "volume" in self.inputnamelist[i]:
                     query += " "+self.inputs[i].text()+","
-                elif "'" in self.inputnamelist[i]:
+                elif "'" in self.inputs[i].text():
                     query += ' "'+self.inputs[i].text()+'",'
                 elif "timestamp" in self.inputnamelist[i]:
                     query += " '"+QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"',"
@@ -182,7 +215,7 @@ class FormDialog(QDialog):
                 elif "year" in self.inputnamelist[i]:
                     query += " '"+self.inputs[i].text()+"',"
                 else:
-                    query += ' "'+self.inputs[i].text()+'",'
+                    query += " '"+self.inputs[i].text()+"',"
             else:
                 for j in range(len(self.inputnamelist)):
                     if type(self.inputs[j]) != QPushButton and type(self.inputs[j]) != QComboBox and type(self.inputs[j]) != QDateEdit and type(self.inputs[j]) != QDateTimeEdit:

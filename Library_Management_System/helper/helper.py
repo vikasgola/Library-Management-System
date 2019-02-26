@@ -116,10 +116,9 @@ class LoginWindow(QDialog):
         self.setLayout(self.layout)
         
     def handleUserMode(self):
-        global username, password
+        setUsername("lmsuser")
+        setPassword("lmsuserpassword")
 
-        username = "lmsuser"
-        password = "lmsuserpassword"
         self.setFixedHeight(280)
         self.namelabel.hide()
         self.namefield.hide()
@@ -216,8 +215,8 @@ class LoginWindow(QDialog):
                 connection.close()
             else:
                 connection = sql.connect(host='localhost', user=self.userfield.text(), password=self.passfield.text(), database=dbname)
-                username = self.userfield.text()
-                password = self.passfield.text()
+                setUsername(self.userfield.text())
+                setPassword(self.passfield.text())
                 connection.close()
 
             if self.checkUser() or usermode == "admin":

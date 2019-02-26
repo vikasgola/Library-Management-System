@@ -18,9 +18,9 @@ def createTables(cursor):
                         year YEAR(4) NOT NULL,
                         isbn VARCHAR(100) NOT NULL,
                         adddate DATE NOT NULL,
-                        issuetime DATETIME,
+                        issuetime DATETIME NULL,
                         publisher_id INT NOT NULL,
-                        user_id INT,
+                        user_id INT NULL,
                         PRIMARY KEY ( book_id ) );""")
 
     cursor.execute("""CREATE TABLE Message(
@@ -37,8 +37,8 @@ def createTables(cursor):
                         isbn VARCHAR(100) NOT NULL,
                         volume INT NOT NULL,
                         adddate DATE NOT NULL,
-                        issuetime DATETIME,
-                        user_id INT,
+                        issuetime DATETIME NULL,
+                        user_id INT NULL,
                         publisher_id INT NOT NULL, 
                         PRIMARY KEY ( periodical_id ) );""")
 
@@ -84,6 +84,11 @@ def createTables(cursor):
                         ADD FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id);""")
 
 
+    cursor.execute("""CREATE TABLE ReserveBook(
+                        book_id INT NOT NULL,
+                        user_id INT NOT NULL,
+                        PRIMARY KEY ( book_id, user_id ) );""")
+
 
 
     cursor.execute("""CREATE TABLE BookAuthor(
@@ -126,6 +131,12 @@ def createTables(cursor):
     cursor.execute("""ALTER TABLE PeriodicalTag
                         ADD FOREIGN KEY (periodical_id) REFERENCES Periodical(periodical_id),
                         ADD FOREIGN KEY (tag_id) REFERENCES Tag(tag_id);""")
+
+
+
+    cursor.execute("""ALTER TABLE ReserveBook
+                        ADD FOREIGN KEY (book_id) REFERENCES Book(book_id),
+                        ADD FOREIGN KEY (user_id) REFERENCES User(user_id);""")
 
 
 

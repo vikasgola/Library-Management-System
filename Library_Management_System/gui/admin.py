@@ -117,9 +117,11 @@ class UserApp(QMainWindow):
                         WHERE Periodical.user_id = User.user_id
                         AND Publisher.publisher_id = Periodical.publisher_id
                         AND User.user_id = '{}'""".format(userDetails["user_id"]))
+        queries.append("SELECT {} FROM Book ".format(",".join(self.getColumnNameList(tablename="Book"))))
+        queries.append("SELECT {} FROM Periodical".format(",".join(self.getColumnNameList(tablename="Periodical"))))
         
-        self.tabnames = [None]*3
-        self.tabnamesCustom = ["Issued Book", "Message", "Issued Periodical"]
+        self.tabnames = [None]*5
+        self.tabnamesCustom = ["Issued Book", "Message", "Issued Periodical", "Available Books", "Available Periodicals"]
         self.middleWidget = TabWidget(self, queries=queries, tabnames=self.tabnamesCustom)
 
         headlist = ["Title", "pages", "issuetime", "isbn", "Author Name", "Publisher Name"]
@@ -137,11 +139,34 @@ class UserApp(QMainWindow):
         for i in range(len(headlist)):
             self.middleWidget.tablist[2].layout.itemAt(0).widget().setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem(headlist[i]))
         
+        headlist = self.getColumnNameList(tablename="Book")
+        self.middleWidget.tablist[3].layout.itemAt(0).widget().setColumnCount(len(headlist))
+        for i in range(len(headlist)):
+            self.middleWidget.tablist[3].layout.itemAt(0).widget().setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem(headlist[i]))
+        
+
+        headlist = self.getColumnNameList(tablename="Periodical")
+        self.middleWidget.tablist[4].layout.itemAt(0).widget().setColumnCount(len(headlist))
+        for i in range(len(headlist)):
+            self.middleWidget.tablist[4].layout.itemAt(0).widget().setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem(headlist[i]))
+
         self.layout.addWidget(self.middleWidget, 1, 0)
+
         
         centralWidget.setLayout(self.layout)
         self.setCentralWidget(centralWidget)
         self.show()
+
+    @LibMS
+    def getColumnNameList(self, cursor , tablename):
+        cursor.execute("SHOW COLUMNS FROM "+tablename)
+        data = cursor.fetchall()
+        headlist = []
+        for i in range(len(data)):
+            if data[i][0] == "issuetime" or data[i][0] == "user_id":
+                continue
+            headlist.append(data[i][0])
+        return headlist
 
 
 def startLibMS():

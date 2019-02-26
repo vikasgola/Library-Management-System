@@ -76,9 +76,9 @@ def createData(num):
                 "year": Datetime().year(minimum=2013, maximum=2018),
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(start=2013, end=2018),
-                # "issuetime": Datetime().datetime(),
+                # "issuetime": "NULL",
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
-                # "user_id": Numbers().between(minimum=1, maximum=num)
+                # "user_id": "NULL"
             })
         else:
             opendate = Datetime().year(minimum=2013, maximum=2018)
@@ -102,9 +102,9 @@ def createData(num):
                 "year": Datetime().year(minimum=2013, maximum=2018),
                 "isbn" : Code().isbn(),
                 "adddate": Datetime().date(start=2013, end=2018),
-                # "issuetime": Datetime().datetime(),
+                # "issuetime": "NULL",
                 "publisher_id": Numbers().between(minimum=1, maximum=len(publisher)),
-                # "user_id": Numbers().between(minimum=1, maximum=num),
+                # "user_id": "NULL",
                 "volume": Numbers().between(minimum=1, maximum=10)
             })
         else:
@@ -159,7 +159,7 @@ def createData(num):
 
 
     # book history tag
-    for i in range(random.randint(num, num*10)):
+    for i in range(random.randint(num, num*4)):
         boid = Numbers().between(minimum=1, maximum = len(books))
         issd = Datetime().date(start=books[boid-1]["adddate"].year, end=2018)
         retd = Datetime().date(start=issd.year, end=2018)
@@ -171,7 +171,7 @@ def createData(num):
         })
 
     # periodical history tag
-    for i in range(random.randint(num, num*10)):
+    for i in range(random.randint(num, num*4)):
         boid = Numbers().between(minimum=1, maximum = len(periodicals))
         issd = Datetime().date(start=periodicals[boid-1]["adddate"].year, end=2018)
         retd = Datetime().date(start=issd.year, end=2018)

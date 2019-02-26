@@ -1,10 +1,15 @@
 # Library Management System
 A Library Management System for IIT Jammu in Mysql Database and Python.
 
+### Database Model
+![](docs/eer_diagram.png)
+
+![](docs/file_structure.png)
+
 ## Requirements
 - python3
+- mysql-server, mysql-client
 - pyqt5
-- mysql-server
 - pandas
 - mimesis
 - pymysql
